@@ -1,0 +1,6 @@
+{
+  "name": "Personal Finance Advisor Bot",
+  "description": "An AI-powered personal finance advisor providing budget generation, spending analysis, and saving suggestions using Gemini 3.8 Flash.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

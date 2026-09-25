@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Finance Advisor Bot | AI-Powered Budget & Savings Advisory</title>
+    <meta name="description" content="AI-powered Personal Finance Advisor Bot providing unified budget generation, spending analysis, and saving suggestions using Gemini 3.8 Flash.">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Top App Navigation & Header -->
+    <header class="app-header" role="banner">
+        <div class="header-container">
+            <div class="logo-area">
+                <div class="logo-badge" aria-hidden="true">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="12" y1="1" x2="12" y2="23"></line>
+                        <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="app-title">Personal Finance Advisor Bot</h1>
+                    <p class="app-tagline">AI-Powered Financial Guidance, Budget Generation &amp; Goal Planning</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content" id="main-content" role="main">
+        <!-- Two Column Interactive Layout (Desktop Grid / Mobile Stack) -->
+        <div class="dashboard-grid">
+            
+            <!-- LEFT COLUMN: Financial Profile Input Form -->
+            <section class="card input-section" aria-labelledby="input-heading">
+                <div class="card-header">
+                    <div>
+                        <h2 id="input-heading" class="card-title">1. Your Financial Information</h2>
+                        <p class="card-subtitle">Input your net monthly income and category expenses. Totals update in real-time.</p>
+                    </div>
+                </div>
+
+                <form id="finance-form" novalidate>
+                    <!-- Monthly Net Income Input -->
+                    <div class="form-group">
+                        <label for="monthly-income" class="form-label">
+                            Monthly Net Income (₹)
+                            <span class="required" aria-hidden="true">*</span>
+                        </label>
+                        <div class="input-with-icon">
+                            <span class="currency-symbol" aria-hidden="true">₹</span>
+                            <input 
+                                type="number" 
+                                id="monthly-income" 
+                                name="income" 
+                                class="form-control" 
+                                placeholder="e.g. 50000.00" 
+                                min="0.01" 
+                                step="0.01" 
+                                required 
+                                aria-required="true"
+                                aria-describedby="income-hint"
+                            >
+                        </div>
+                        <span id="income-hint" class="field-hint">Your take-home pay after taxes and mandatory withholdings.</span>
+                    </div>
+
+                    <!-- Itemized Expenses Section -->
+                    <div class="expenses-control-bar">
+                        <div>
+                            <h3 class="subsection-title">Monthly Expenses</h3>
+                            <p class="field-hint">Add or adjust categories to match your monthly spending.</p>
+                        </div>
+                        <button type="button" id="add-expense-btn" class="btn btn-secondary btn-sm" aria-label="Add new expense category">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                                <line x1="12" y1="5" x2="12" y2="19"></line>
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Add Category
+                        </button>
+                    </div>
+
+                    <!-- Dynamic Expense Rows Container -->
+                    <div id="expense-list" class="expense-list" role="region" aria-label="Itemized Expense Categories">
+                        <!-- Populated by script.js with default categories -->
+                    </div>
+
+                    <!-- Optional Financial Goal Section -->
+                    <div class="goal-container">
+                        <div class="goal-toggle-row">
+                            <h3 class="subsection-title">Target Financial Goal <span class="badge-optional">(Optional)</span></h3>
+                        </div>
+                        <p class="field-hint">Provide an objective (e.g., Emergency Buffer, Home Deposit, Debt Payoff) for tailored AI roadmap steps.</p>
+                        
+                        <div class="grid-goal">
+                            <div class="form-group">
+                                <label for="goal-desc" class="form-label">Goal Description</label>
+                                <input type="text" id="goal-desc" name="goal-desc" class="form-control" placeholder="e.g. Emergency Fund Cushion">
+                            </div>
+                            <div class="form-group">
+                                <label for="goal-target" class="form-label">Target Amount (₹)</label>
+                                <div class="input-with-icon">
+                                    <span class="currency-symbol" aria-hidden="true">₹</span>
+                                    <input type="number" id="goal-target" name="goal-target" class="form-control" placeholder="e.g. 60000" min="1" step="1">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="goal-timeframe" class="form-label">Timeframe (Months)</label>
+                                <input type="number" id="goal-timeframe" name="goal-timeframe" class="form-control" placeholder="e.g. 12" min="1" step="1">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Client-Side Form Error Notification Box -->
+                    <div id="form-error-banner" class="alert alert-danger hidden" role="alert" aria-live="assertive"></div>
+
+                    <!-- Submit / Action Button -->
+                    <div class="form-actions">
+                        <button type="submit" id="analyze-btn" class="btn btn-primary btn-block">
+                            <span class="btn-spinner hidden" id="btn-spinner" aria-hidden="true"></span>
+                            <span id="btn-text">Analyze Finances with Gemini</span>
+                        </button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- RIGHT COLUMN: Real-Time Financial Summary Preview Card -->
+            <aside class="card summary-section" aria-labelledby="summary-heading">
+                <div class="card-header">
+                    <div>
+                        <h2 id="summary-heading" class="card-title">Live Financial Preview</h2>
+                        <p class="card-subtitle">Real-time client-side calculation before AI submission.</p>
+                    </div>
+                    <span class="live-indicator">
+                        <span class="live-dot" aria-hidden="true"></span>
+                        Live
+                    </span>
+                </div>
+
+                <div class="preview-metrics">
+                    <div class="metric-tile">
+                        <span class="metric-label">Total Monthly Income</span>
+                        <span class="metric-number" id="preview-income">₹0.00</span>
+                    </div>
+
+                    <div class="metric-tile">
+                        <span class="metric-label">Total Monthly Expenses</span>
+                        <span class="metric-number" id="preview-expenses">₹0.00</span>
+                    </div>
+
+                    <div class="metric-tile tile-highlight" id="preview-balance-tile">
+                        <span class="metric-label">Remaining Balance</span>
+                        <span class="metric-number" id="preview-balance">₹0.00</span>
+                        <span class="metric-sub" id="preview-balance-status">Awaiting figures</span>
+                    </div>
+
+                    <div class="metric-tile">
+                        <span class="metric-label">Potential Monthly Savings</span>
+                        <span class="metric-number" id="preview-savings">₹0.00</span>
+                        <span class="metric-sub" id="preview-savings-rate">0.0% of income</span>
+                    </div>
+                </div>
+
+                <!-- Spending Distribution Progress Bar -->
+                <div class="distribution-card">
+                    <div class="dist-header">
+                        <span class="dist-title">Expense vs. Income Ratio</span>
+                        <span class="dist-percent" id="preview-ratio-text">0%</span>
+                    </div>
+                    <div class="progress-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="preview-progress-bar">
+                        <div class="progress-fill" id="preview-progress-fill" style="width: 0%;"></div>
+                    </div>
+                    <p class="progress-caption" id="preview-ratio-caption">Enter your figures to see budget health metrics.</p>
+                </div>
+
+                <!-- Quick Benchmark Preview (50/30/20 Guide) -->
+                <div class="benchmark-info-box">
+                    <h4 class="info-box-title">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        50/30/20 Rule Benchmark
+                    </h4>
+                    <ul class="benchmark-list">
+                        <li><strong>50% Needs:</strong> Essential living costs (Rent, Utilities, Food)</li>
+                        <li><strong>30% Wants:</strong> Discretionary spending &amp; entertainment</li>
+                        <li><strong>20% Savings:</strong> Debt payoff, investments &amp; emergency reserves</li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+
+        <!-- Loading State Skeleton Card -->
+        <section id="loading-card" class="card loading-card hidden" aria-live="polite" aria-busy="true">
+            <div class="ai-loader-container">
+                <div class="radar-spinner" aria-hidden="true"></div>
+                <h3 class="loading-title">Analyzing Your Financial Profile</h3>
+                <p class="loading-desc">
+                    Communicating with <strong>Gemini 3.8 Flash</strong> to construct your personalized budget allocations,
+                    screen spending anomalies, and generate actionable savings steps...
+                </p>
+                <div class="loading-steps">
+                    <div class="step-item active">✓ Verifying financial arithmetic</div>
+                    <div class="step-item active">✓ Comparing against 50/30/20 principles</div>
+                    <div class="step-item pulse">⟳ Synthesizing unified advisory report</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Error Banner -->
+        <div id="api-error-card" class="card alert-card alert-danger hidden" role="alert" aria-live="assertive">
+            <div class="alert-icon">⚠️</div>
+            <div class="alert-body">
+                <h4 class="alert-heading">Analysis Error</h4>
+                <p id="api-error-message">An error occurred while generating your financial advice.</p>
+            </div>
+        </div>
+
+        <!-- RESULTS DASHBOARD (Rendered dynamically upon successful response) -->
+        <section id="results-dashboard" class="results-container hidden" aria-labelledby="results-heading">
+            
+            <!-- Dashboard Header Banner -->
+            <div class="results-header-card card">
+                <div class="results-header-flex">
+                    <div>
+                        <div class="results-tag">AI Financial Assessment Complete</div>
+                        <h2 id="results-heading" class="results-main-title">Personal Financial Advisory Report</h2>
+                        <p class="results-timestamp" id="results-timestamp">Evaluated with Gemini 3.8 Flash</p>
+                    </div>
+                    <button type="button" id="recalculate-btn" class="btn btn-secondary btn-sm">
+                        ↑ Edit Information
+                    </button>
+                </div>
+
+                <!-- Executive Summary -->
+                <div class="executive-summary-box">
+                    <div class="summary-badge">Executive Summary</div>
+                    <p id="advisory-summary" class="summary-text">...</p>
+                </div>
+            </div>
+
+            <!-- Verified KPI Dashboard Grid -->
+            <div class="kpi-grid">
+                <div class="card kpi-card">
+                    <span class="kpi-title">Verified Monthly Income</span>
+                    <span class="kpi-value text-primary" id="kpi-income">₹0.00</span>
+                    <span class="kpi-sub">Net Monthly Take-Home</span>
+                </div>
+                <div class="card kpi-card">
+                    <span class="kpi-title">Total Monthly Expenses</span>
+                    <span class="kpi-value text-secondary" id="kpi-expenses">₹0.00</span>
+                    <span class="kpi-sub" id="kpi-expense-ratio">0% of income</span>
+                </div>
+                <div class="card kpi-card">
+                    <span class="kpi-title">Monthly Net Balance</span>
+                    <span class="kpi-value" id="kpi-balance">₹0.00</span>
+                    <span class="kpi-sub" id="kpi-balance-status">Net Flow</span>
+                </div>
+                <div class="card kpi-card">
+                    <span class="kpi-title">Savings Capacity</span>
+                    <span class="kpi-value text-success" id="kpi-savings">₹0.00</span>
+                    <span class="kpi-sub" id="kpi-savings-rate">0% target</span>
+                </div>
+            </div>
+
+            <!-- 50/30/20 Framework Benchmark Breakdown -->
+            <div class="card framework-card">
+                <div class="section-title-row">
+                    <div class="section-icon-badge">⚖️</div>
+                    <div>
+                        <h3 class="section-heading">50/30/20 Framework Evaluation</h3>
+                        <p class="section-subtext" id="framework-evaluation-text">...</p>
+                    </div>
+                </div>
+
+                <div class="benchmark-grid" id="benchmark-grid">
+                    <!-- Populated dynamically: Needs, Wants, Savings bars -->
+                </div>
+            </div>
+
+            <!-- A. Recommended Budget & Category Allocations -->
+            <div class="card budget-card">
+                <div class="section-title-row">
+                    <div class="section-icon-badge">📊</div>
+                    <div>
+                        <h3 class="section-heading">A. Recommended Budget &amp; Category Allocations</h3>
+                        <p class="section-subtext">Actionable target limits recommended by Gemini 3.8 Flash based on your net cash flow.</p>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="advisory-table" aria-label="Category Budget Recommendations">
+                        <thead>
+                            <tr>
+                                <th scope="col">Category</th>
+                                <th scope="col">Current Spending</th>
+                                <th scope="col">Recommended Target</th>
+                                <th scope="col">Suggested Action</th>
+                                <th scope="col">Reasoning &amp; Rationale</th>
+                            </tr>
+                        </thead>
+                        <tbody id="budget-recommendations-body">
+                            <!-- Populated dynamically by script.js -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- B. Spending Analysis & Anomaly Detection -->
+            <div class="card spending-card">
+                <div class="section-title-row">
+                    <div class="section-icon-badge">🔍</div>
+                    <div>
+                        <h3 class="section-heading">B. Spending Analysis &amp; Pattern Identification</h3>
+                        <p class="section-subtext">Automated analysis of spending concentrations, essential dependencies, and cost-reduction opportunities.</p>
+                    </div>
+                </div>
+
+                <div class="spending-subgrid">
+                    <div class="analysis-subcard">
+                        <h4 class="subcard-title text-danger">⚠️ High Spending Areas</h4>
+                        <div id="high-spending-tags" class="tag-cloud">
+                            <!-- Populated dynamically -->
+                        </div>
+                    </div>
+
+                    <div class="analysis-subcard">
+                        <h4 class="subcard-title text-primary">💡 Efficiency Opportunities</h4>
+                        <ul id="efficiency-opportunities-list" class="advisory-bullet-list">
+                            <!-- Populated dynamically -->
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="observations-box">
+                    <h4 class="subcard-title">Key Observations</h4>
+                    <ul id="spending-observations-list" class="advisory-bullet-list">
+                        <!-- Populated dynamically -->
+                    </ul>
+                </div>
+            </div>
+
+            <!-- C. Saving Suggestions & Goal Roadmap -->
+            <div class="card savings-card">
+                <div class="section-title-row">
+                    <div class="section-icon-badge">🎯</div>
+                    <div>
+                        <h3 class="section-heading">C. Practical Saving Suggestions &amp; Goal Roadmap</h3>
+                        <p class="section-subtext">High-leverage, practical steps designed to accelerate your savings and achieve your goals.</p>
+                    </div>
+                </div>
+
+                <div id="goal-progress-box" class="goal-highlight-card hidden">
+                    <!-- Populated dynamically if goal was submitted -->
+                </div>
+
+                <div class="suggestions-list-container" id="saving-suggestions-container">
+                    <!-- Populated dynamically by script.js -->
+                </div>
+            </div>
+
+            <!-- D. Financial Health Notes & Mandatory AI Disclaimer -->
+            <div class="card health-card">
+                <div class="section-title-row">
+                    <div class="section-icon-badge">🛡️</div>
+                    <div>
+                        <h3 class="section-heading">D. Financial Health Notes &amp; Risk Guidelines</h3>
+                        <p class="section-subtext">Emergency buffer calculations and risk-mitigation observations.</p>
+                    </div>
+                </div>
+
+                <ul id="health-notes-list" class="advisory-bullet-list">
+                    <!-- Populated dynamically -->
+                </ul>
+
+                <!-- Prominent In-Dashboard AI Disclaimer -->
+                <div class="disclaimer-callout" role="note">
+                    <div class="disclaimer-icon">ℹ️</div>
+                    <div class="disclaimer-text">
+                        <strong>Important Educational Disclaimer:</strong>
+                        This application provides educational AI-generated financial guidance and is not certified financial, investment, tax, or legal advice.
+                        All projections are estimates designed for financial planning awareness.
+                    </div>
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- App Footer -->
+    <footer class="app-footer" role="contentinfo">
+        <div class="footer-container">
+            <p class="footer-disclaimer">
+                <strong>Disclaimer:</strong> This application provides educational AI-generated financial guidance and is not certified financial, investment, tax, or legal advice.
+            </p>
+            <p class="footer-meta">
+                &copy; 2026 Personal Finance Advisor Bot &bull; College Capstone Project &bull; Powered by Google Gemini 3.8 Flash
+            </p>
+        </div>
+    </footer>
+
+    <script src="/static/js/script.js"></script>
+</body>
+</html>

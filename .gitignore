@@ -1,0 +1,40 @@
+# Python bytecode and cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Environment Variables & Secrets
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# SQLite Databases & Storage
+database/*.db
+database/*.sqlite
+database/*.sqlite3
+*.db
+*.sqlite3
+
+# Node / Frontend Build (if present in multi-stack setup)
+node_modules/
+build/
+dist/
+coverage/
+
+# Operating System & IDE Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.log

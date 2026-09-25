@@ -1,0 +1,14 @@
+# Dependencies for Personal Finance Advisor Bot Capstone Project
+# Backend Framework
+Flask==3.0.3
+Werkzeug==3.0.3
+
+# Database & ORM
+Flask-SQLAlchemy==3.1.1
+
+# AI & LLM Engine (Current Official Google GenAI SDK for Gemini 3.8 Flash)
+google-genai==1.5.0
+pydantic==2.8.2
+
+# Configuration & Utilities
+python-dotenv==1.0.1

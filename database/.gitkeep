@@ -1,0 +1,2 @@
+# Keep database directory tracked in version control
+# Actual *.db and *.sqlite files are excluded via .gitignore
